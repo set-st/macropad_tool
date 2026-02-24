@@ -5,6 +5,7 @@ mod keyboard;
 mod mapping;
 mod options;
 mod parse;
+mod gui;
 
 use crate::consts::PRODUCT_IDS;
 use crate::decoder::Decoder;
@@ -93,7 +94,7 @@ fn main() -> Result<()> {
                             device_info.num_keys, device_info.num_encoders
                         );
 
-                        let macropad = Mapping::read(config_file);
+                        let macropad = Mapping::read(config_file).context("reading config file")?;
                         if device_info.num_keys != macropad.device.rows * macropad.device.cols {
                             return Err(anyhow!(
                                 "Number of keys specified in config does not match device"
@@ -129,7 +130,7 @@ fn main() -> Result<()> {
         }
 
         Command::Program { config_file } => {
-            let config = Mapping::read(config_file);
+            let config = Mapping::read(config_file).context("reading config file")?;
             let mut keyboard = open_keyboard(&options).context("opening keyboard")?;
             keyboard.program(&config).context("programming macropad")?;
             println!("successfully programmed device");
@@ -160,6 +161,10 @@ fn main() -> Result<()> {
                 .read_macropad_config(layer)
                 .context("reading macropad configuration")?;
             Mapping::print(macropad_config);
+        }
+
+        Command::ShowGui => {
+            gui::main();
         }
     }
 

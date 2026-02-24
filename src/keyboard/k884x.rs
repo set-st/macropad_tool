@@ -218,7 +218,6 @@ impl Keyboard for Keyboard884x {
         let bytes_read = self.recieve(&mut buf)?;
 
         if bytes_read > 0 {
-            self.recieve(&mut buf)?;
             let device_info = Decoder::get_device_info(&buf);
             ensure!(
                 device_info.num_keys == (macropad.device.rows * macropad.device.cols)

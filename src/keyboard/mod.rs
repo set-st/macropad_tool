@@ -184,7 +184,9 @@ pub trait Keyboard: Messages + Configuration {
     }
 }
 
-#[derive(Debug, Default, ToPrimitive, Clone, Copy, Display, clap::ValueEnum)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Default, ToPrimitive, Clone, Copy, Display, clap::ValueEnum, PartialEq, Eq, Serialize, Deserialize)]
 pub enum LedColor {
     Red = 0x10,
     Orange = 0x20,

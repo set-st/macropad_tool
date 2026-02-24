@@ -108,6 +108,9 @@ pub enum Command {
 
     /// Select LED backlight mode
     Led(LedCommand),
+
+    /// Show GUI
+    ShowGui,
 }
 
 #[derive(Parser, Clone, Default, Debug)]
