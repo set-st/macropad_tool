@@ -236,6 +236,13 @@ To launch the GUI:
 macropad-tool show-gui
 #+end_example
 
+** Quick Start (Cross-platform)
+For convenience, use the provided launch scripts to automatically check dependencies and start the editor:
+
+- *MacOS:* Run =./run_macos.sh= (don't forget =chmod +x run_macos.sh=)
+- *Linux:* Run =./run_linux.sh= (automatically installs libusb-dev)
+- *Windows:* Double-click =run_windows.bat=
+
 *** Disclaimer
 *Note:* This GUI extension is provided for educational and demonstrational purposes. The author assumes no responsibility for any damage, data loss, or bricked devices resulting from the use of this software. Use at your own risk! :)
 

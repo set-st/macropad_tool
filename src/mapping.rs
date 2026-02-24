@@ -1,5 +1,4 @@
 use anyhow::{anyhow, Context, Result};
-use log::debug;
 use serde::{Deserialize, Serialize};
 use crate::keyboard::{LedColor, MediaCode, Modifier, WellKnownCode};
 use crate::config::Orientation;
@@ -8,9 +7,7 @@ use crate::consts;
 /// Mapping for a button
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Button {
-    /// Delay value (only used if mapping is a keychord; has ',' for key presses)
     pub delay: u16,
-    /// Mapping for the button
     pub mapping: String,
 }
 
@@ -45,6 +42,8 @@ impl Layer {
     }
 }
 
+fn default_layers_count() -> u8 { 3 }
+
 /// Device configuration
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Device {
@@ -52,6 +51,8 @@ pub struct Device {
     pub rows: u8,
     pub cols: u8,
     pub knobs: u8,
+    #[serde(default = "default_layers_count")]
+    pub layers: u8,
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, Debug)]
@@ -71,9 +72,10 @@ pub struct Macropad {
 
 impl Macropad {
     pub fn new(rows: u8, cols: u8, knobs: u8) -> Self {
+        let layers_count = 3;
         Self {
-            device: Device { orientation: Orientation::Normal, rows, cols, knobs },
-            layers: vec![Layer::new(rows, cols, knobs); 3],
+            device: Device { orientation: Orientation::Normal, rows, cols, knobs, layers: layers_count },
+            layers: vec![Layer::new(rows, cols, knobs); layers_count as usize],
             led_settings: Some(LedSettings { mode: 1, layer: 1, color: LedColor::Cyan }),
         }
     }
