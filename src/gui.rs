@@ -2,13 +2,12 @@ use eframe::egui;
 use crate::options::{Options, Command, DevelOptions};
 use crate::consts::VENDOR_ID;
 use crate::mapping::{Mapping, Macropad, Layer, LedSettings};
-use crate::keyboard::{Modifier, MediaCode, LedColor};
+use crate::keyboard::LedColor;
 use crate::config::Orientation;
 use crate::{open_keyboard, find_device};
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::{Duration, Instant};
 use std::thread;
-use strum::IntoEnumIterator;
 
 pub fn main() {
     let native_options = eframe::NativeOptions {
@@ -166,17 +165,6 @@ impl MacropadApp {
         data.status_color = egui::Color32::KHAKI;
     }
 
-    fn insert_key(&mut self, key: &str) {
-        if self.temp_editor_val.is_empty() || self.temp_editor_val.ends_with('-') || self.temp_editor_val.ends_with(',') {
-            self.temp_editor_val.push_str(key);
-        } else {
-            if key.ends_with('-') { self.temp_editor_val.push_str(key); }
-            else { self.temp_editor_val.push_str(","); self.temp_editor_val.push_str(key); }
-        }
-        let mut data = DATA.lock().unwrap();
-        self.sync_temp_to_data(&mut data);
-    }
-
     fn sync_temp_to_data(&self, data: &mut MutexGuard<EditorData>) {
         let layer_idx = data.current_layer_idx;
         let delay = self.temp_delay_val.parse::<u16>().unwrap_or(0);
@@ -262,7 +250,6 @@ impl eframe::App for MacropadApp {
             ui.heading("Device Config");
             ui.add_space(8.0);
             
-            // LAYERS AT TOP
             ui.horizontal(|ui| {
                 ui.label(egui::RichText::new("Layers:").strong());
                 egui::ComboBox::from_id_salt("layers_cb").selected_text(self.ui_layers.to_string()).show_ui(ui, |ui| {
@@ -415,12 +402,15 @@ impl eframe::App for MacropadApp {
                         ui.label("Delay (ms):"); if ui.text_edit_singleline(&mut self.temp_delay_val).changed() { self.sync_temp_to_data(&mut d); }
                         ui.add_space(20.0); ui.label("Mapping:"); if ui.text_edit_singleline(&mut self.temp_editor_val).changed() { self.sync_temp_to_data(&mut d); }
                     });
-                    ui.add_space(10.0); ui.label("AVAILABLE CODES (Click to insert):");
-                    let mut key_to_insert = None;
-                    ui.horizontal_wrapped(|ui| { ui.label("Mods:"); for m in Modifier::iter() { let key = format!("{}-", m.to_string().to_lowercase()); if ui.small_button(&key).clicked() { key_to_insert = Some(key); } } });
-                    ui.horizontal_wrapped(|ui| { ui.label("Media:"); for m in MediaCode::iter() { let key = m.to_string().to_lowercase(); if ui.small_button(&key).clicked() { key_to_insert = Some(key); } } });
-                    ui.horizontal_wrapped(|ui| { ui.label("More:"); for key in ["click", "rclick", "mclick", "wheelup", "wheeldown", "space", "enter", "backspace", "tab", "esc", ","] { if ui.small_button(key).clicked() { key_to_insert = Some(key.to_string()); } } });
-                    if let Some(key) = key_to_insert { self.insert_key(&key); }
+                    ui.add_space(10.0);
+                    ui.heading("Code Reference Legend");
+                    ui.group(|ui| {
+                        ui.horizontal(|ui| { ui.label(egui::RichText::new("Modifiers:").strong()); ui.label("ctrl-, shift-, alt-, win-, rctrl-, rshift-, ralt-, rwin-"); });
+                        ui.horizontal(|ui| { ui.label(egui::RichText::new("Media:").strong()); ui.label("play, stop, next, prev, mute, volup, voldown, brightnessup, brightnessdown"); });
+                        ui.horizontal(|ui| { ui.label(egui::RichText::new("Mouse:").strong()); ui.label("click, rclick, mclick, wheelup, wheeldown"); });
+                        ui.horizontal(|ui| { ui.label(egui::RichText::new("Other:").strong()); ui.label("space, enter, backspace, tab, esc, comma, dot, slash, a-z, 0-9, f1-f24"); });
+                        ui.label(egui::RichText::new("Hint: Use commas to sequence commands (e.g. ctrl-c,ctrl-v) and dashes for combos (e.g. shift-a)").italics().size(11.0));
+                    });
                 } else { ui.label(egui::RichText::new("Click a button in the grid above to edit its configuration").italics()); }
             });
         });

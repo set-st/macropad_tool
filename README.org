@@ -243,6 +243,8 @@ For convenience, use the provided launch scripts to automatically check dependen
 - *Linux:* Run =./run_linux.sh= (automatically installs libusb-dev)
 - *Windows:* Double-click =run_windows.bat=
 
+*Note:* This build has been primarily tested on *macOS*. While launch scripts for other systems are provided, they require further community testing.
+
 *** Disclaimer
 *Note:* This GUI extension is provided for educational and demonstrational purposes. The author assumes no responsibility for any damage, data loss, or bricked devices resulting from the use of this software. Use at your own risk! :)
 
